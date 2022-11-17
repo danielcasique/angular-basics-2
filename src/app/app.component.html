@@ -1,4 +1,13 @@
 <app-nav></app-nav>
+<button (click)="createUser()">Crear usuario</button>
+<button (click)="login()">Login</button>
+<button (click)="getProfile()">Profile</button>
+<a href="./assets/files/text.txt">descargar</a>
+<button (click)="donwloadPdf()">Descarger PDF</button>
+<p>
+  <input type="file" (change)="onUpload($event)" />
+  <img *ngIf="imgRta" [src]="imgRta" alt="" />
+</p>
 <app-products></app-products>
 
 <!--

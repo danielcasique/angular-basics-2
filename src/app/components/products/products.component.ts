@@ -4,6 +4,8 @@ import { Component, OnInit } from '@angular/core';
 import { Product, CreateProductDTO, UpdateProductDto } from '../../models/product.model';
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
+import { switchMap } from 'rxjs/operators';
+import { zip } from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -29,6 +31,7 @@ export class ProductsComponent implements OnInit {
   };
   limit = 10;
   offset = 0;
+  statusDetail: 'loading' | 'success' | 'error'  | 'init' = 'init';
 
   constructor(
     private storeService: StoreService,
@@ -38,7 +41,7 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productsService.getProductByPage(10, 0)
+    this.productsService.getAllProducts(10, 0)
     .subscribe( data => {
       this.products = data;
     });
@@ -55,12 +58,35 @@ export class ProductsComponent implements OnInit {
   }
 
   onShowDetail(id: string){
+    this.statusDetail = 'loading';
+    this.toggelProductDetail();
     this.productsService.getProduct(id)
     .subscribe(data => {
 //      console.log('product', data);
-      this.toggelProductDetail();
+
       this.productChosen = data;
+      this.statusDetail = 'success';
+    }, response => {
+      window.alert(response);
+      this.statusDetail = 'error';
     })
+  }
+
+  readAndUpdate(id: string){
+    this.productsService.getProduct(id)
+    .pipe(
+      switchMap((product) => this.productsService.update(product.id, {title : 'change'}))
+    )
+    .subscribe( data => {
+      console.log(data);
+    });
+
+    this.productsService.fetchReadAndUpdate(id, {title: 'nuevo'})
+    .subscribe(response => {
+      const product = response[0];
+      const update= response[1];
+    });
+
   }
 
   createNewProduct(){
